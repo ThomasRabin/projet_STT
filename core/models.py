@@ -169,6 +169,12 @@ FACE_CHOICES = [
     ("BOTTOM", "BOTTOM"),
 ]
 
+TEST_CHOICES = [
+    ("TEST1", "TEST1"),
+    ("TEST2", "TEST2"),
+    ("TEST3", "TEST3"),
+]
+
 class Test(models.Model):
     idProduit = models.ForeignKey(Produit, on_delete=models.CASCADE)
     idOperation = models.ForeignKey(

@@ -1,24 +1,17 @@
-# Environnement virtuel
-venv/
-.venv/
-
-# Fichiers Python
+# Python
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
 
-# Fichiers Django
+# Django
 db.sqlite3
 media/
 staticfiles/
 
-# Variables d'environnement
-.env
+# Venv
+.venv/
+venv/
 
 # IDE
 .vscode/
 .idea/
-
-# Logs
-*.log
