@@ -144,7 +144,6 @@ class Machine(models.Model):
     anneeMachine = models.IntegerField(
         validators=[MinValueValidator(1900), MaxValueValidator(2200)]
     )
-    versionLogiciel = models.CharField(max_length=30, blank=True, null=True)
     dateDerniereMaintenanceMachine = models.DateField()
     nbPassageMachine = models.IntegerField(validators=[MinValueValidator(0)], default=0)
 
@@ -169,12 +168,6 @@ FACE_CHOICES = [
     ("BOTTOM", "BOTTOM"),
 ]
 
-TEST_CHOICES = [
-    ("TEST1", "TEST1"),
-    ("TEST2", "TEST2"),
-    ("TEST3", "TEST3"),
-]
-
 class Test(models.Model):
     idProduit = models.ForeignKey(Produit, on_delete=models.CASCADE)
     idOperation = models.ForeignKey(
@@ -186,6 +179,7 @@ class Test(models.Model):
     codeOperateur = models.IntegerField(blank=True, null=True)  # Non applicable en v1
     FPY_flag = models.BooleanField()
     dateFinTest = models.DateTimeField()
+    versionLogiciel = models.CharField(max_length=30, blank=True, null=True)
 
 
 class LogTest(models.Model):
