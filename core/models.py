@@ -53,7 +53,7 @@ class ReferenceProduit(models.Model):
 class OF(models.Model):
     idReferenceProduit = models.ForeignKey(ReferenceProduit, on_delete=models.PROTECT)
 
-    # Un numéro d'OF est généralement un code (zéros possibles) => CharField conseillé
+    # Un numéro d'OF est numéro de 7 chiffres (avec des zéros à gauche si besoin), et doit être unique
     numeroOF = models.CharField(
         max_length=7,
         validators=[MinLengthValidator(7), MaxLengthValidator(7)],
@@ -173,6 +173,7 @@ class Test(models.Model):
     idOperation = models.ForeignKey(
         Operation, on_delete=models.SET_NULL, blank=True, null=True
     )
+    idRapport = models.CharField(max_length=50, unique=True, null=True, blank=True)
     face = models.CharField(max_length=6, choices=FACE_CHOICES, blank=True, null=True)
     etatTest = models.BooleanField()
     resultatTest = models.CharField(max_length=50)
