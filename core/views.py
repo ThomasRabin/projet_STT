@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from .models import OF, LogTest, Produit, ReferenceProduit
+from .models import OF, LogTest, Produit, ReferenceProduit, Test
 
 def index(request):
     return HttpResponse("Hello, world. You're at the core index.")
@@ -38,6 +38,30 @@ def logs_list(request):
                 <b>Composant :</b> {log.composant}<br>
                 <b>Face :</b> {log.face}<br>
                 <b>Date :</b> {log.dateEtape}
+            </div>
+            <hr>
+            """
+        )
+
+    return HttpResponse("".join(lignes))
+
+def tests(request):
+    """
+    Affiche tous les tests en fonction de leur numéro de série.
+    """
+
+    tests = Test.objects.all().order_by("-dateFinTest")
+
+    lignes = []
+
+    for test in tests:
+        lignes.append(
+            f"""
+            <div style="margin-bottom:15px;">
+                <b>Test ID :</b> {test.idRapport}<br>
+                <b>SN :</b> {test.idProduit.SN}<br>
+                <b>Résultat :</b> {test.resultatTest}<br>
+                <b>Date fin :</b> {test.dateFinTest}
             </div>
             <hr>
             """
