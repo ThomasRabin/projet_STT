@@ -8,4 +8,5 @@ urlpatterns = [
     path("references/", views.reference_list, name="reference_list"),
     path("produits/", views.produit_list, name="produit_list"),
     path("ingestion/rapport/", recevoir_rapport, name="recevoir_rapport"),
+    path("logs/", views.logs_list, name="logs_list"),
 ]

@@ -61,7 +61,7 @@ class RapportValide:
 
     type_operation: str
     nom_operation: str
-    date_fin_operation_iso: str
+    date_fin_operation_iso: Optional[str]
 
     code_machine: str
     type_machine: str
@@ -125,10 +125,10 @@ class AuditeurRapport:
 
         type_operation = lire_champ_obligatoire(rapport, "operation.typeOperation")
         nom_operation = lire_champ_obligatoire(rapport, "operation.nomOperation")
-        date_fin_operation_iso = lire_champ_obligatoire(rapport, "operation.dateFinOperation")
+        date_fin_operation_iso = lire_champ_optionnel(rapport, "operation.dateFinOperation")
 
         # Vérifier que la date est parseable ISO
-        if parse_datetime(date_fin_operation_iso) is None:
+        if date_fin_operation_iso is not None and parse_datetime(date_fin_operation_iso) is None:
             raise ErreurValidationRapport("operation.dateFinOperation n'est pas une date ISO valide")
 
         code_machine = lire_champ_obligatoire(rapport, "machine.codeMachine")

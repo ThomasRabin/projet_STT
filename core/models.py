@@ -161,7 +161,7 @@ class Operation(models.Model):
     numeroOperation = models.IntegerField(blank=True, null=True)  # Non applicable en v1
     nomOperation = models.CharField(max_length=30)
     typeOperation = models.CharField(max_length=30, choices=TYPE_OPERATION_CHOICES)
-    dateFinOperation = models.DateTimeField(blank=True, null=True)
+    dateFinOperation = models.DateTimeField(blank=True, null=True) #Non applicable en v1
 
 FACE_CHOICES = [
     ("TOP", "TOP"),

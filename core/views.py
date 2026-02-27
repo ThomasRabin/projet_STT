@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from .models import OF, Produit, ReferenceProduit
+from .models import OF, LogTest, Produit, ReferenceProduit
 
 def index(request):
     return HttpResponse("Hello, world. You're at the core index.")
@@ -18,3 +18,29 @@ def produit_list(request):
     produits = Produit.objects.all().order_by("SN")
     lines = [f"{prod.SN} - {prod.idReferenceProduit} - {prod.statutProduit}" for prod in produits]
     return HttpResponse("<br>".join(lines))
+
+def logs_list(request):
+    """
+    Affiche tous les logs présents en base.
+    """
+
+    logs = LogTest.objects.all().order_by("-dateEtape")
+
+    lignes = []
+
+    for log in logs:
+        lignes.append(
+            f"""
+            <div style="margin-bottom:15px;">
+                <b>Test ID :</b> {log.idTest.idRapport}<br>
+                <b>Étape :</b> {log.numeroEtape} - {log.nomEtape}<br>
+                <b>Résultat :</b> {log.resultatEtape}<br>
+                <b>Composant :</b> {log.composant}<br>
+                <b>Face :</b> {log.face}<br>
+                <b>Date :</b> {log.dateEtape}
+            </div>
+            <hr>
+            """
+        )
+
+    return HttpResponse("".join(lignes))

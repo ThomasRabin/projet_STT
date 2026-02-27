@@ -11,7 +11,7 @@ CHAMPS_OBLIGATOIRES = [
 
     "operation.typeOperation",
     "operation.nomOperation",
-    "operation.dateFinOperation",
+    #"operation.dateFinOperation", non obligatoire en v1, à revoir pour v2
 
     "machine.codeMachine",
     "machine.typeMachine",
