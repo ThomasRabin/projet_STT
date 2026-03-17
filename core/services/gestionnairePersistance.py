@@ -38,7 +38,7 @@ from core.models import (
     Machine,
     InterfaceMachine,
     Operation,
-    Test,
+    PassageTest,
     LogTest,
     Defaut,
 )
@@ -186,7 +186,7 @@ class GestionnairePersistance:
         # ==========================================================
         # 8) Test : créer un test lié au produit + opération
         # ==========================================================
-        test_obj = Test.objects.create(
+        test_obj = PassageTest.objects.create(
             idProduit=produit_obj,
             idOperation=operation_obj,
             idRapport=rapport.id_rapport,  # important : unicité du rapport

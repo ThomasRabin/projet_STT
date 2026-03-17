@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import (
     ReferenceProduit, OF, Produit, AffectationProduitOF, Carte, Panel,
-    CompositionPanel, Machine, InterfaceMachine, Operation, Test,
+    CompositionPanel, Machine, InterfaceMachine, Operation, PassageTest,
     LogTest, Defaut
 )
 
@@ -17,6 +17,6 @@ admin.site.register(CompositionPanel)
 admin.site.register(Machine)
 admin.site.register(InterfaceMachine)
 admin.site.register(Operation)
-admin.site.register(Test)
+admin.site.register(PassageTest)
 admin.site.register(LogTest)
 admin.site.register(Defaut)

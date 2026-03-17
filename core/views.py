@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from .models import OF, LogTest, Produit, ReferenceProduit, Test
+from .models import OF, LogTest, Produit, ReferenceProduit, PassageTest
 
 def index(request):
     return HttpResponse("Hello, world. You're at the core index.")
@@ -50,7 +50,7 @@ def tests(request):
     Affiche tous les tests en fonction de leur numéro de série.
     """
 
-    tests = Test.objects.all().order_by("-dateFinTest")
+    tests = PassageTest.objects.all().order_by("-dateFinTest")
 
     lignes = []
 

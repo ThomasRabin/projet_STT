@@ -168,7 +168,7 @@ FACE_CHOICES = [
     ("BOTTOM", "BOTTOM"),
 ]
 
-class Test(models.Model):
+class PassageTest(models.Model):
     idProduit = models.ForeignKey(Produit, on_delete=models.CASCADE)
     idOperation = models.ForeignKey(
         Operation, on_delete=models.SET_NULL, blank=True, null=True
@@ -184,7 +184,7 @@ class Test(models.Model):
 
 
 class LogTest(models.Model):
-    idTest = models.ForeignKey(Test, on_delete=models.CASCADE)
+    idTest = models.ForeignKey(PassageTest, on_delete=models.CASCADE)
     dateEtape = models.DateTimeField(blank=True, null=True)
     numeroEtape = models.IntegerField(blank=True, null=True)
     nomEtape = models.CharField(max_length=50)
@@ -200,7 +200,7 @@ class LogTest(models.Model):
 
 
 class Defaut(models.Model):
-    idTest = models.OneToOneField(Test, on_delete=models.CASCADE)
+    idTest = models.OneToOneField(PassageTest, on_delete=models.CASCADE)
     numeroDefaut = models.IntegerField(blank=True, null=True)
     nomDefaut = models.CharField(max_length=50)
     dateDefaut = models.DateTimeField()
