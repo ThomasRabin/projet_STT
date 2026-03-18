@@ -1,5 +1,6 @@
 import pytest
 
+from core.ingestion.serializers import RapportEntreeSerializer
 from core.domain.auditeur import AuditeurRapport
 from core.services.gestionnairePersistance import GestionnairePersistance
 from core.models import (
@@ -14,12 +15,18 @@ from core.models import (
 )
 
 
+def valider_payload_par_serializer(payload: dict) -> dict:
+    serializer = RapportEntreeSerializer(data=payload)
+    assert serializer.is_valid(), serializer.errors
+    return serializer.validated_data
+
+
 @pytest.mark.django_db
 def test_persistance_cree_tout():
     auditeur = AuditeurRapport()
     service = GestionnairePersistance()
 
-    rapport = {
+    payload = {
         "idRapport": "RPT-2026-02-24-100001",
         "produit": {
             "type": "CARTE",
@@ -64,7 +71,8 @@ def test_persistance_cree_tout():
         "defaut": None,
     }
 
-    rapport_valide = auditeur.valider(rapport)
+    donnees_validees = valider_payload_par_serializer(payload)
+    rapport_valide = auditeur.valider(donnees_validees)
     service.persister(rapport_valide)
 
     assert ReferenceProduit.objects.filter(PN="PN_TEST").exists()
@@ -86,7 +94,7 @@ def test_persistance_idempotence_affectation_of():
     auditeur = AuditeurRapport()
     service = GestionnairePersistance()
 
-    rapport = {
+    payload = {
         "idRapport": "RPT-2026-02-24-100002",
         "produit": {
             "type": "CARTE",
@@ -130,11 +138,14 @@ def test_persistance_idempotence_affectation_of():
         "defaut": None,
     }
 
-    service.persister(auditeur.valider(rapport))
+    donnees_validees_1 = valider_payload_par_serializer(payload)
+    service.persister(auditeur.valider(donnees_validees_1))
 
-    rapport2 = dict(rapport)
-    rapport2["idRapport"] = "RPT-2026-02-24-100003"
-    service.persister(auditeur.valider(rapport2))
+    payload_2 = dict(payload)
+    payload_2["idRapport"] = "RPT-2026-02-24-100003"
+
+    donnees_validees_2 = valider_payload_par_serializer(payload_2)
+    service.persister(auditeur.valider(donnees_validees_2))
 
     produit = Produit.objects.get(SN="SN_TEST_2")
     assert AffectationProduitOF.objects.filter(idProduit=produit).count() == 1
@@ -145,7 +156,7 @@ def test_persistance_calcule_fpy_false_si_deuxieme_passage():
     auditeur = AuditeurRapport()
     service = GestionnairePersistance()
 
-    rapport_1 = {
+    payload_1 = {
         "idRapport": "RPT-2026-02-24-100010",
         "produit": {
             "type": "CARTE",
@@ -195,8 +206,8 @@ def test_persistance_calcule_fpy_false_si_deuxieme_passage():
         },
     }
 
-    rapport_2 = {
-        **rapport_1,
+    payload_2 = {
+        **payload_1,
         "idRapport": "RPT-2026-02-24-100011",
         "test": {
             "face": "TOP",
@@ -216,8 +227,11 @@ def test_persistance_calcule_fpy_false_si_deuxieme_passage():
         "defaut": None,
     }
 
-    service.persister(auditeur.valider(rapport_1))
-    service.persister(auditeur.valider(rapport_2))
+    donnees_validees_1 = valider_payload_par_serializer(payload_1)
+    donnees_validees_2 = valider_payload_par_serializer(payload_2)
+
+    service.persister(auditeur.valider(donnees_validees_1))
+    service.persister(auditeur.valider(donnees_validees_2))
 
     test_1 = PassageTest.objects.get(idRapport="RPT-2026-02-24-100010")
     test_2 = PassageTest.objects.get(idRapport="RPT-2026-02-24-100011")

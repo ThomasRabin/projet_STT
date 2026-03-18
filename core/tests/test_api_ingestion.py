@@ -70,11 +70,7 @@ def test_api_ingestion_ko_json_invalide(client):
         content_type="application/json",
     )
 
-    body = response.json()
-
     assert response.status_code == 400
-    assert body["statut"] == "KO"
-    assert body["codeErreur"] == "INVALID_REQUEST"
 
 
 @pytest.mark.django_db

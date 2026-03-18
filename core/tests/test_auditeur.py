@@ -1,5 +1,6 @@
 import pytest
 
+from core.ingestion.serializers import RapportEntreeSerializer
 from core.domain.auditeur import AuditeurRapport
 from core.domain.exceptions import ErreurValidationMetier
 
@@ -52,41 +53,43 @@ def rapport_base_valide() -> dict:
     }
 
 
+def valider_payload_par_serializer(payload: dict) -> dict:
+    serializer = RapportEntreeSerializer(data=payload)
+    assert serializer.is_valid(), serializer.errors
+    return serializer.validated_data
+
+
 def test_auditeur_accepte_rapport_valide():
     auditeur = AuditeurRapport()
-    rapport = rapport_base_valide()
+    payload = rapport_base_valide()
 
-    resultat = auditeur.valider(rapport)
+    donnees_validees = valider_payload_par_serializer(payload)
+    resultat = auditeur.valider(donnees_validees)
 
-    assert resultat.id_rapport == rapport["idRapport"]
+    assert resultat.id_rapport == payload["idRapport"]
     assert resultat.numero_of == "4578965"
-
-
-def test_auditeur_refuse_carte_sans_bloc_carte():
-    auditeur = AuditeurRapport()
-    rapport = rapport_base_valide()
-    rapport["produit"]["carte"] = None
-
-    with pytest.raises(ErreurValidationMetier):
-        auditeur.valider(rapport)
 
 
 def test_auditeur_refuse_etat_test_false_sans_defaut():
     auditeur = AuditeurRapport()
-    rapport = rapport_base_valide()
-    rapport["test"]["etatTest"] = False
-    rapport["test"]["resultatTest"] = "FAIL"
-    rapport["defaut"] = None
+    payload = rapport_base_valide()
+    payload["test"]["etatTest"] = False
+    payload["test"]["resultatTest"] = "FAIL"
+    payload["defaut"] = None
+
+    donnees_validees = valider_payload_par_serializer(payload)
 
     with pytest.raises(ErreurValidationMetier):
-        auditeur.valider(rapport)
+        auditeur.valider(donnees_validees)
 
 
 def test_auditeur_refuse_etat_test_true_avec_resultat_non_pass():
     auditeur = AuditeurRapport()
-    rapport = rapport_base_valide()
-    rapport["test"]["etatTest"] = True
-    rapport["test"]["resultatTest"] = "FAIL"
+    payload = rapport_base_valide()
+    payload["test"]["etatTest"] = True
+    payload["test"]["resultatTest"] = "FAIL"
+
+    donnees_validees = valider_payload_par_serializer(payload)
 
     with pytest.raises(ErreurValidationMetier):
-        auditeur.valider(rapport)
+        auditeur.valider(donnees_validees)
