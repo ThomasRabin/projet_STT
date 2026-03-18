@@ -61,7 +61,8 @@ def tests(request):
                 <b>Test ID :</b> {test.idRapport}<br>
                 <b>SN :</b> {test.idProduit.SN}<br>
                 <b>Résultat :</b> {test.resultatTest}<br>
-                <b>Date fin :</b> {test.dateFinTest}
+                <b>Date fin :</b> {test.dateFinTest}<br>
+                <b>Flag FPY :</b> {test.FPY_flag}<br>
             </div>
             <hr>
             """

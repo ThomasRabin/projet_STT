@@ -1,114 +1,192 @@
 """
 @file receptionneur.py
-@brief Point d'entrée HTTP pour la réception des rapports de test au format JSON.
+@brief Point d'entrée HTTP DRF pour la réception des rapports JSON.
 
 @details
-Ce module expose une vue Django permettant de recevoir un rapport de test
-au format JSON via une requête HTTP POST.
+Ce module expose une vue Django REST Framework permettant de recevoir un
+rapport de test au format JSON via HTTP POST.
 
 Flux d'exécution global :
-
-1) Réception de la requête HTTP.
-2) Décodage du corps brut (bytes → UTF-8 string).
-3) Désérialisation JSON (string → dict Python).
-4) Validation structurelle et métier via @ref AuditeurRapport.
-5) Persistance en base via @ref GestionnairePersistance.
-6) Retour d'une réponse JSON standardisée.
-
-Architecture respectée :
-- Ingestion (HTTP) : ce module
-- Validation métier : core.domain.auditeur
-- Persistance : core.services.gestionnairePersistance
-
-@note
-Cette vue est exemptée de CSRF car elle est destinée à être appelée
-par un système externe (ETL / machine / API industrielle).
+1) Vérification du Content-Type
+2) Validation structurelle / typage via serializer DRF
+3) Validation métier via AuditeurRapport
+4) Persistance via GestionnairePersistance
+5) Retour d'un acquittement JSON standardisé avec code HTTP adapté
 """
 
-import json
+from __future__ import annotations
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.utils import timezone
+from rest_framework import status
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
 
 from core.domain.auditeur import AuditeurRapport
-from core.domain.exceptions import ErreurValidationRapport
+from core.domain.exceptions import (
+    ErreurValidationMetier,
+    ErreurConflitRapport,
+    ErreurTechniqueTemporaire,
+)
+from core.ingestion.serializers import RapportEntreeSerializer
 from core.services.gestionnairePersistance import GestionnairePersistance
+import traceback
 
-
-@csrf_exempt
-@require_POST
-def recevoir_rapport(request):
+def construire_acquittement(
+    *,
+    statut_metier: str,
+    message: str,
+    id_rapport: str | None = None,
+    tentative: int | None = None,
+    code_erreur: str | None = None,
+    details: dict | list | None = None,
+) -> dict:
     """
-    @brief Point d'entrée HTTP pour la réception d'un rapport de test.
+    @brief Construit le corps JSON standard de réponse API.
 
-    @details
-    Cette fonction est appelée lorsqu'un client envoie une requête POST
-    contenant un rapport JSON.
-
-    Étapes :
-    - Lecture du corps brut de la requête (request.body).
-    - Décodage UTF-8.
-    - Parsing JSON vers dictionnaire Python.
-    - Validation via @ref AuditeurRapport.
-    - Persistance via @ref GestionnairePersistance.
-    - Retour d'un statut HTTP approprié.
-
-    @param request Objet HttpRequest Django contenant le JSON dans request.body.
-    @return JsonResponse :
-        - 201 si le rapport est valide et persisté.
-        - 400 si le JSON est invalide.
-        - 400 si la validation métier échoue.
-
-    @raises ErreurValidationRapport
-        Interceptée localement pour retourner une erreur métier propre.
+    @param statut_metier Statut métier parmi OK / RETRY / KO.
+    @param message Message lisible et exploitable.
+    @param id_rapport Identifiant rapport si disponible.
+    @param tentative Numéro de tentative si applicable.
+    @param code_erreur Code applicatif stable.
+    @param details Détails complémentaires, typiquement serializer.errors.
+    @return dict sérialisable en JSON.
     """
+    payload = {
+        "statut": statut_metier,
+        "message": message,
+        "horodatage": timezone.now().isoformat(),
+    }
 
-    # ==============================
-    # 1) Décodage et parsing JSON
-    # ==============================
-    try:
-        # Corps brut en bytes → conversion en string UTF-8
-        texte_json = request.body.decode("utf-8")
+    if id_rapport is not None:
+        payload["idRapport"] = id_rapport
 
-        # Conversion du texte JSON en dictionnaire Python
-        rapport_dict = json.loads(texte_json)
+    if tentative is not None:
+        payload["tentative"] = tentative
 
-    except Exception:
-        # JSON mal formé ou encodage incorrect
-        return JsonResponse(
-            {"ok": False, "error": "JSON invalide"},
-            status=400
+    if code_erreur is not None:
+        payload["codeErreur"] = code_erreur
+
+    if details is not None:
+        payload["details"] = details
+
+    return payload
+
+
+@api_view(["POST"])
+@parser_classes([JSONParser])
+def recevoir_rapport(request) -> Response:
+    """
+    @brief Reçoit, valide et persiste un rapport de test.
+
+    @return Response
+        - 201 Created : rapport accepté et persisté
+        - 400 Bad Request : JSON invalide / structure invalide
+        - 415 Unsupported Media Type : Content-Type non supporté
+        - 422 Unprocessable Entity : règle métier non respectée
+        - 409 Conflict : doublon / conflit de persistance
+        - 503 Service Unavailable : erreur technique temporaire
+        - 500 Internal Server Error : erreur imprévue
+    """
+    # ==========================================================
+    # 1) Vérification explicite du Content-Type
+    # ==========================================================
+    content_type = request.content_type or ""
+    if not content_type.startswith("application/json"):
+        return Response(
+            construire_acquittement(
+                statut_metier="KO",
+                message="Content-Type non supporté, 'application/json' attendu",
+                code_erreur="UNSUPPORTED_MEDIA_TYPE",
+            ),
+            status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         )
 
-    # ==============================
-    # 2) Instanciation des services
-    # ==============================
+    # ==========================================================
+    # 2) Validation structurelle / types via DRF serializer
+    # ==========================================================
+    serializer = RapportEntreeSerializer(data=request.data)
+
+    if not serializer.is_valid():
+        id_rapport = None
+        if isinstance(request.data, dict):
+            id_rapport = request.data.get("idRapport")
+
+        return Response(
+            construire_acquittement(
+                statut_metier="KO",
+                message="Requête invalide",
+                id_rapport=id_rapport,
+                code_erreur="INVALID_REQUEST",
+                details=serializer.errors,
+            ),
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # À partir d'ici, les types et champs sont propres
+    donnees_validees = serializer.validated_data
+    id_rapport = donnees_validees.get("idRapport")
+
     auditeur = AuditeurRapport()
     persistance = GestionnairePersistance()
 
-    # ==============================
-    # 3) Validation métier
-    # ==============================
+    # ==========================================================
+    # 3) Validation métier + persistance
+    # ==========================================================
     try:
-        rapport_valide = auditeur.valider(rapport_dict)
+        rapport_valide = auditeur.valider(donnees_validees)
+        persistance.persister(rapport_valide)
 
-    except ErreurValidationRapport as erreur:
-        # Erreur de cohérence métier ou structure invalide
-        return JsonResponse(
-            {"ok": False, "error": str(erreur)},
-            status=400
+        return Response(
+            construire_acquittement(
+                statut_metier="OK",
+                message="Rapport accepté et persisté",
+                id_rapport=rapport_valide.id_rapport,
+                code_erreur=None,
+            ),
+            status=status.HTTP_201_CREATED,
         )
 
-    # ==============================
-    # 4) Persistance en base
-    # ==============================
-    persistance.persister(rapport_valide)
+    except ErreurValidationMetier as exc:
+        return Response(
+            construire_acquittement(
+                statut_metier="KO",
+                message=str(exc),
+                id_rapport=id_rapport,
+                code_erreur="BUSINESS_RULE_FAILED",
+            ),
+            status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
 
-    # ==============================
-    # 5) Réponse succès
-    # ==============================
-    return JsonResponse(
-        {"ok": True, "idRapport": rapport_valide.id_rapport},
-        status=201
-    )
+    except ErreurConflitRapport as exc:
+        return Response(
+            construire_acquittement(
+                statut_metier="KO",
+                message=str(exc),
+                id_rapport=id_rapport,
+                code_erreur="REPORT_CONFLICT",
+            ),
+            status=status.HTTP_409_CONFLICT,
+        )
+
+    except ErreurTechniqueTemporaire as exc:
+        return Response(
+            construire_acquittement(
+                statut_metier="RETRY",
+                message=str(exc),
+                id_rapport=id_rapport,
+                code_erreur="TEMPORARY_TECHNICAL_ERROR",
+            ),
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+
+    except Exception:
+        return Response(
+            construire_acquittement(
+                statut_metier="RETRY",
+                message="Erreur interne non prévue",
+                id_rapport=id_rapport,
+                code_erreur="INTERNAL_ERROR",
+            ),
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
