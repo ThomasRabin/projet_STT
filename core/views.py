@@ -67,6 +67,8 @@ def tests(request):
                 <b>Résultat :</b> {test.resultatTest}<br>
                 <b>Date fin :</b> {date_formattee}<br>
                 <b>Flag FPY :</b> {test.FPY_flag}<br>
+                <b>Machine :</b> {test.idOperation.idMachine}<br>
+                <b>Interface :</b> {test.idInterfaceUtilisee}<br>
             </div>
             <hr>
             """
