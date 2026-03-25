@@ -5,13 +5,14 @@ import pytest
 @pytest.mark.django_db
 def test_api_ingestion_ok(client):
     payload = {
-        "idRapport": "RPT-2026-02-24-200001",
+        "idRapport": "RPT-AOI_01-20260325090000",
+        "createdAt": "2025-10-14T15:06:10.000+02:00",
         "produit": {
             "type": "CARTE",
             "sn": "SN_API_1",
             "pn": "PN_API",
-            "statutProduit": "A_ANALYSER",
-            "carte": {"statutCarte": "A_ANALYSER"},
+            "statutProduit": "A analyser",
+            "carte": {"statutCarte": "A analyser"},
             "panel": None,
         },
         "of": {
@@ -28,19 +29,31 @@ def test_api_ingestion_ok(client):
         "machine": {
             "codeMachine": "AOI-01",
             "typeMachine": "AOI",
-            "interfaces": [],
+            "interface": "IF-01",
         },
         "test": {
             "face": "TOP",
             "etatTest": True,
             "resultatTest": "PASS",
-            "dateFinTest": "2026-02-24T09:29:58Z",
+            "dateFinTest": "2025-10-14T15:06:10.000+02:00",
+            "versionLogiciel": "v1.0",
+            "codeOperateur": None,
         },
         "logs": [
             {
+                "dateEtape": "2025-10-14T15:05:00.000+02:00",
+                "face": "TOP",
+                "position": 1,
                 "numeroEtape": 1,
                 "nomEtape": "Step",
+                "messageErreur": None,
+                "limMoins": None,
+                "limPlus": None,
+                "valeurMesuree": None,
+                "unite": None,
                 "resultatEtape": True,
+                "composant": None,
+                "refComposant": None,
             }
         ],
         "defaut": None,
@@ -76,13 +89,14 @@ def test_api_ingestion_ko_json_invalide(client):
 @pytest.mark.django_db
 def test_api_ingestion_ko_regle_metier(client):
     payload = {
-        "idRapport": "RPT-2026-02-24-200002",
+        "idRapport": "RPT-AOI_02-20260325090001",
+        "createdAt": "2025-10-14T15:06:10.000+02:00",
         "produit": {
             "type": "CARTE",
             "sn": "SN_API_2",
             "pn": "PN_API",
-            "statutProduit": "A_ANALYSER",
-            "carte": {"statutCarte": "A_ANALYSER"},
+            "statutProduit": "A analyser",
+            "carte": {"statutCarte": "A analyser"},
             "panel": None,
         },
         "of": {
@@ -99,19 +113,31 @@ def test_api_ingestion_ko_regle_metier(client):
         "machine": {
             "codeMachine": "AOI-02",
             "typeMachine": "AOI",
-            "interfaces": [],
+            "interface": "IF-01",
         },
         "test": {
             "face": "TOP",
             "etatTest": False,
             "resultatTest": "FAIL",
-            "dateFinTest": "2026-02-24T09:29:58Z",
+            "dateFinTest": "2025-10-14T15:06:10.000+02:00",
+            "versionLogiciel": None,
+            "codeOperateur": None,
         },
         "logs": [
             {
+                "dateEtape": "2025-10-14T15:05:00.000+02:00",
+                "face": "TOP",
+                "position": 1,
                 "numeroEtape": 1,
                 "nomEtape": "Step",
+                "messageErreur": "Erreur test",
+                "limMoins": None,
+                "limPlus": None,
+                "valeurMesuree": None,
+                "unite": None,
                 "resultatEtape": False,
+                "composant": None,
+                "refComposant": None,
             }
         ],
         "defaut": None,

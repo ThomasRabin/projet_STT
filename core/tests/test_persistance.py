@@ -27,13 +27,14 @@ def test_persistance_cree_tout():
     service = GestionnairePersistance()
 
     payload = {
-        "idRapport": "RPT-2026-02-24-100001",
+        "idRapport": "RPT-AOI_01-20260325090100",
+        "createdAt": "2025-10-14T15:06:10.000+02:00",
         "produit": {
             "type": "CARTE",
             "sn": "SN_TEST_1",
             "pn": "PN_TEST",
-            "statutProduit": "A_ANALYSER",
-            "carte": {"statutCarte": "A_ANALYSER"},
+            "statutProduit": "A analyser",
+            "carte": {"statutCarte": "A analyser"},
             "panel": None,
         },
         "of": {
@@ -50,22 +51,31 @@ def test_persistance_cree_tout():
         "machine": {
             "codeMachine": "AOI-01",
             "typeMachine": "AOI",
-            "interfaces": [{"codeInterface": "IF-01"}],
+            "interface": "IF-01",
         },
         "test": {
             "face": "TOP",
             "etatTest": True,
             "resultatTest": "PASS",
-            "dateFinTest": "2026-02-24T09:29:58Z",
+            "dateFinTest": "2025-10-14T15:06:10.000+02:00",
             "versionLogiciel": "v2.3.1",
             "codeOperateur": None,
         },
         "logs": [
             {
+                "dateEtape": "2025-10-14T15:05:00.000+02:00",
+                "face": "TOP",
+                "position": 1,
                 "numeroEtape": 1,
                 "nomEtape": "Step1",
+                "messageErreur": None,
+                "limMoins": None,
+                "limPlus": None,
+                "valeurMesuree": None,
+                "unite": None,
                 "resultatEtape": True,
-                "dateEtape": "2026-02-24T09:29:10Z",
+                "composant": None,
+                "refComposant": None,
             }
         ],
         "defaut": None,
@@ -81,7 +91,7 @@ def test_persistance_cree_tout():
     assert Machine.objects.filter(codeMachine="AOI-01").exists()
     assert InterfaceMachine.objects.filter(codeInterface="IF-01").exists()
 
-    test_obj = PassageTest.objects.get(idRapport="RPT-2026-02-24-100001")
+    test_obj = PassageTest.objects.get(idRapport="RPT-AOI_01-20260325090100")
     assert test_obj.FPY_flag is True
     assert LogTest.objects.filter(idTest=test_obj).count() == 1
 
@@ -95,13 +105,14 @@ def test_persistance_idempotence_affectation_of():
     service = GestionnairePersistance()
 
     payload = {
-        "idRapport": "RPT-2026-02-24-100002",
+        "idRapport": "RPT-AOI_01-20260325090200",
+        "createdAt": "2025-10-14T15:06:10.000+02:00",
         "produit": {
             "type": "CARTE",
             "sn": "SN_TEST_2",
             "pn": "PN_TEST",
-            "statutProduit": "A_ANALYSER",
-            "carte": {"statutCarte": "A_ANALYSER"},
+            "statutProduit": "A analyser",
+            "carte": {"statutCarte": "A analyser"},
             "panel": None,
         },
         "of": {
@@ -118,21 +129,31 @@ def test_persistance_idempotence_affectation_of():
         "machine": {
             "codeMachine": "AOI-01",
             "typeMachine": "AOI",
-            "interfaces": [],
+            "interface": "IF-01",
         },
         "test": {
             "face": "TOP",
             "etatTest": True,
             "resultatTest": "PASS",
-            "dateFinTest": "2026-02-24T09:29:58Z",
+            "dateFinTest": "2025-10-14T15:06:10.000+02:00",
             "versionLogiciel": None,
             "codeOperateur": None,
         },
         "logs": [
             {
+                "dateEtape": "2025-10-14T15:05:00.000+02:00",
+                "face": "TOP",
+                "position": 1,
                 "numeroEtape": 1,
                 "nomEtape": "Step1",
+                "messageErreur": None,
+                "limMoins": None,
+                "limPlus": None,
+                "valeurMesuree": None,
+                "unite": None,
                 "resultatEtape": True,
+                "composant": None,
+                "refComposant": None,
             }
         ],
         "defaut": None,
@@ -141,8 +162,8 @@ def test_persistance_idempotence_affectation_of():
     donnees_validees_1 = valider_payload_par_serializer(payload)
     service.persister(auditeur.valider(donnees_validees_1))
 
-    payload_2 = dict(payload)
-    payload_2["idRapport"] = "RPT-2026-02-24-100003"
+    payload_2 = payload.copy()
+    payload_2["idRapport"] = "RPT-AOI_01-20260325090201"
 
     donnees_validees_2 = valider_payload_par_serializer(payload_2)
     service.persister(auditeur.valider(donnees_validees_2))
@@ -157,13 +178,14 @@ def test_persistance_calcule_fpy_false_si_deuxieme_passage():
     service = GestionnairePersistance()
 
     payload_1 = {
-        "idRapport": "RPT-2026-02-24-100010",
+        "idRapport": "RPT-ICT_01-20260325090300",
+        "createdAt": "2025-10-14T15:06:10.000+02:00",
         "produit": {
             "type": "CARTE",
             "sn": "SN_FPY_1",
             "pn": "PN_FPY",
-            "statutProduit": "A_ANALYSER",
-            "carte": {"statutCarte": "A_ANALYSER"},
+            "statutProduit": "A analyser",
+            "carte": {"statutCarte": "A analyser"},
             "panel": None,
         },
         "of": {
@@ -180,27 +202,37 @@ def test_persistance_calcule_fpy_false_si_deuxieme_passage():
         "machine": {
             "codeMachine": "ICT-01",
             "typeMachine": "ICT",
-            "interfaces": [],
+            "interface": "IF-03",
         },
         "test": {
             "face": "TOP",
             "etatTest": False,
             "resultatTest": "FAIL",
-            "dateFinTest": "2026-02-24T09:29:58Z",
+            "dateFinTest": "2025-10-14T15:06:10.000+02:00",
             "versionLogiciel": None,
             "codeOperateur": None,
         },
         "logs": [
             {
+                "dateEtape": "2025-10-14T15:05:00.000+02:00",
+                "face": "TOP",
+                "position": 1,
                 "numeroEtape": 1,
                 "nomEtape": "Step1",
+                "messageErreur": "Premier passage KO",
+                "limMoins": None,
+                "limPlus": None,
+                "valeurMesuree": None,
+                "unite": None,
                 "resultatEtape": False,
+                "composant": None,
+                "refComposant": None,
             }
         ],
         "defaut": {
             "numeroDefaut": 1,
             "nomDefaut": "Defaut test",
-            "dateDefaut": "2026-02-24T09:30:00Z",
+            "dateDefaut": "2025-10-14T15:06:10.000+02:00",
             "dateRework": None,
             "commentaireDefaut": "Premier passage KO",
         },
@@ -208,20 +240,30 @@ def test_persistance_calcule_fpy_false_si_deuxieme_passage():
 
     payload_2 = {
         **payload_1,
-        "idRapport": "RPT-2026-02-24-100011",
+        "idRapport": "RPT-ICT_01-20260325090301",
         "test": {
             "face": "TOP",
             "etatTest": True,
             "resultatTest": "PASS",
-            "dateFinTest": "2026-02-24T10:29:58Z",
+            "dateFinTest": "2025-10-14T16:06:10.000+02:00",
             "versionLogiciel": None,
             "codeOperateur": None,
         },
         "logs": [
             {
+                "dateEtape": "2025-10-14T16:05:00.000+02:00",
+                "face": "TOP",
+                "position": 1,
                 "numeroEtape": 1,
                 "nomEtape": "Step1",
+                "messageErreur": None,
+                "limMoins": None,
+                "limPlus": None,
+                "valeurMesuree": None,
+                "unite": None,
                 "resultatEtape": True,
+                "composant": None,
+                "refComposant": None,
             }
         ],
         "defaut": None,
@@ -233,8 +275,8 @@ def test_persistance_calcule_fpy_false_si_deuxieme_passage():
     service.persister(auditeur.valider(donnees_validees_1))
     service.persister(auditeur.valider(donnees_validees_2))
 
-    test_1 = PassageTest.objects.get(idRapport="RPT-2026-02-24-100010")
-    test_2 = PassageTest.objects.get(idRapport="RPT-2026-02-24-100011")
+    test_1 = PassageTest.objects.get(idRapport="RPT-ICT_01-20260325090300")
+    test_2 = PassageTest.objects.get(idRapport="RPT-ICT_01-20260325090301")
 
     assert test_1.FPY_flag is False
     assert test_2.FPY_flag is False
