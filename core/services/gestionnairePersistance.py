@@ -205,20 +205,18 @@ class GestionnairePersistance:
             machine_obj.save(update_fields=["nomMachine", "typeMachine"])
 
             # ==========================================================
-            # 6) Interfaces : créer/récupérer puis lier à la machine
+            # 6) Interface : créer/récupérer puis lier à la machine
             # ==========================================================
-            interfaces_objs = []
-            for code_interface in rapport.codes_interfaces:
-                interface_obj, _ = InterfaceMachine.objects.get_or_create(
-                    codeInterface=code_interface,
-                    defaults={
-                        "nomInterface": code_interface,
-                        "anneeInterface": 2000,  # TODO v2
-                    },
-                )
-                interfaces_objs.append(interface_obj)
 
-            machine_obj.interfaces.set(interfaces_objs)
+            interface_obj, _ = InterfaceMachine.objects.get_or_create(
+                codeInterface=rapport.code_interface,
+                defaults={
+                    "nomInterface": rapport.code_interface,
+                    "anneeInterface": 2000,  # TODO v2
+                },
+            )
+
+            machine_obj.interfaces.add(interface_obj)
 
             # ==========================================================
             # 7) Operation : créer une opération
@@ -246,6 +244,7 @@ class GestionnairePersistance:
             test_obj = PassageTest.objects.create(
                 idProduit=produit_obj,
                 idOperation=operation_obj,
+                idInterfaceUtilisee=interface_obj,
                 idRapport=rapport.id_rapport,
                 face=rapport.face_test,
                 etatTest=rapport.etat_test,
@@ -273,7 +272,7 @@ class GestionnairePersistance:
                     composant=log.get("composant"),
                     refComposant=log.get("refComposant"),
                     face=log.get("face"),
-                    imageTest=None,  # TODO v2 : gérer image AOI si fournie
+                    #imageTest=None,  abandonnée pour contraint memoire
                 )
 
             # ==========================================================

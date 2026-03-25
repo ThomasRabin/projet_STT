@@ -9,10 +9,10 @@ from django.core.validators import (
 ########################## Enumérations ##########################
 STATUT_PRODUIT_CHOICES = [
     ("OK", "OK"),
-    ("A_ANALYSER", "A_ANALYSER"),
-    ("A_REPARER", "A_REPARER"),
-    ("A_RETESTER", "A_RETESTER"),
-    ("REBUTER", "REBUTER"),
+    ("A_ANALYSER", "A analyser"),
+    ("A_REPARER", "A réparer"),
+    ("A_RETESTER", "A retester"),
+    ("REBUT", "Rebut"),
 ]
 
 STATUT_OF_CHOICES = [
@@ -173,6 +173,12 @@ class PassageTest(models.Model):
     idOperation = models.ForeignKey(
         Operation, on_delete=models.SET_NULL, blank=True, null=True
     )
+    idInterfaceUtilisee = models.ForeignKey(
+        InterfaceMachine,
+        on_delete=models.SET_NULL,
+        blank=True, null=True,
+        related_name="tests"
+    )
     idRapport = models.CharField(max_length=50, unique=True, null=True, blank=True)
     face = models.CharField(max_length=6, choices=FACE_CHOICES, blank=True, null=True)
     etatTest = models.BooleanField()
@@ -186,8 +192,11 @@ class PassageTest(models.Model):
 class LogTest(models.Model):
     idTest = models.ForeignKey(PassageTest, on_delete=models.CASCADE)
     dateEtape = models.DateTimeField(blank=True, null=True)
+    face = models.CharField(max_length=6, choices=FACE_CHOICES, blank=True, null=True)
+    position = models.IntegerField(validators=[MinValueValidator(1)], default=1)
     numeroEtape = models.IntegerField(blank=True, null=True)
     nomEtape = models.CharField(max_length=50)
+    messageErreur = models.CharField(max_length=255, blank=True, null=True)
     limPlus = models.FloatField(blank=True, null=True)
     limMoins = models.FloatField(blank=True, null=True)
     valeurMesuree = models.FloatField(blank=True, null=True)
@@ -195,8 +204,8 @@ class LogTest(models.Model):
     resultatEtape = models.BooleanField()
     composant = models.CharField(max_length=10, blank=True, null=True)
     refComposant = models.CharField(max_length=30, blank=True, null=True)
-    face = models.CharField(max_length=30, blank=True, null=True)
-    imageTest = models.ImageField(upload_to="images/", blank=True, null=True)
+    #imageTest = models.ImageField(upload_to="images/", blank=True, null=True)
+    #imageTestUrl = models.CharField(max_length=255, blank=True, null=True)
 
 
 class Defaut(models.Model):

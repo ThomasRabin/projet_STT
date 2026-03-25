@@ -180,11 +180,12 @@ def recevoir_rapport(request) -> Response:
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
 
-    except Exception:
+    except Exception as exc:
+        traceback.print_exc()
         return Response(
             construire_acquittement(
                 statut_metier="RETRY",
-                message="Erreur interne non prévue",
+                message=str(exc),
                 id_rapport=id_rapport,
                 code_erreur="INTERNAL_ERROR",
             ),

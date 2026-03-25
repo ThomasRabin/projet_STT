@@ -1,14 +1,17 @@
 from rest_framework import serializers
 
 
-class InterfaceMachineSerializer(serializers.Serializer):
-    codeInterface = serializers.CharField(max_length=10)
+STATUT_PRODUIT_VALUES = [
+    "OK",
+    "A analyser",
+    "A réparer",
+    "A retester",
+    "Rebut",
+]
 
 
 class ProduitCarteSerializer(serializers.Serializer):
-    statutCarte = serializers.ChoiceField(
-        choices=["OK", "A_ANALYSER", "A_REPARER", "A_RETESTER", "REBUTER"]
-    )
+    statutCarte = serializers.ChoiceField(choices=STATUT_PRODUIT_VALUES)
 
 
 class ProduitPanelSerializer(serializers.Serializer):
@@ -19,9 +22,7 @@ class ProduitSerializer(serializers.Serializer):
     type = serializers.ChoiceField(choices=["CARTE", "PANEL"])
     sn = serializers.CharField(max_length=30)
     pn = serializers.CharField(max_length=30)
-    statutProduit = serializers.ChoiceField(
-        choices=["OK", "A_ANALYSER", "A_REPARER", "A_RETESTER", "REBUTER"]
-    )
+    statutProduit = serializers.ChoiceField(choices=STATUT_PRODUIT_VALUES)
     carte = ProduitCarteSerializer(required=False, allow_null=True)
     panel = ProduitPanelSerializer(required=False, allow_null=True)
 
@@ -63,31 +64,41 @@ class OperationSerializer(serializers.Serializer):
     typeOperation = serializers.ChoiceField(
         choices=["AUTOMATIQUE", "MANUELLE", "TEST", "CONTROLE"]
     )
-    numeroOperation = serializers.IntegerField(required=False, allow_null=True)
+    numeroOperation = serializers.IntegerField(
+        required=False, allow_null=True, min_value=0
+    )
     nomOperation = serializers.CharField(max_length=30)
     dateFinOperation = serializers.DateTimeField(required=False, allow_null=True)
 
 
 class MachineSerializer(serializers.Serializer):
-    codeMachine = serializers.CharField(max_length=10)
+    codeMachine = serializers.CharField(max_length=30)
     typeMachine = serializers.ChoiceField(
         choices=["CMS", "VAGUE", "AOI", "ICT", "FCT", "PROGRAMMATION", "VRT", "AUTRE"]
     )
-    interfaces = InterfaceMachineSerializer(many=True, required=False)
+    interface = serializers.CharField(max_length=10)
 
 
 class LogSerializer(serializers.Serializer):
     dateEtape = serializers.DateTimeField(required=False, allow_null=True)
+    face = serializers.ChoiceField(
+        choices=["TOP", "BOTTOM"], required=False, allow_null=True
+    )
+    position = serializers.IntegerField(min_value=1)
+
     numeroEtape = serializers.IntegerField(required=False, allow_null=True)
     nomEtape = serializers.CharField(max_length=50)
-    limPlus = serializers.FloatField(required=False, allow_null=True)
+    messageErreur = serializers.CharField(required=False, allow_null=True)
+
     limMoins = serializers.FloatField(required=False, allow_null=True)
+    limPlus = serializers.FloatField(required=False, allow_null=True)
     valeurMesuree = serializers.FloatField(required=False, allow_null=True)
     unite = serializers.CharField(max_length=20, required=False, allow_null=True)
+
     resultatEtape = serializers.BooleanField()
+
     composant = serializers.CharField(max_length=10, required=False, allow_null=True)
     refComposant = serializers.CharField(max_length=30, required=False, allow_null=True)
-    face = serializers.CharField(max_length=30, required=False, allow_null=True)
 
 
 class DefautSerializer(serializers.Serializer):
@@ -99,16 +110,22 @@ class DefautSerializer(serializers.Serializer):
 
 
 class TestSerializer(serializers.Serializer):
-    face = serializers.ChoiceField(choices=["TOP", "BOTTOM"], required=False, allow_null=True)
+    face = serializers.ChoiceField(
+        choices=["TOP", "BOTTOM"], required=False, allow_null=True
+    )
     etatTest = serializers.BooleanField()
     resultatTest = serializers.CharField(max_length=50)
     dateFinTest = serializers.DateTimeField()
-    versionLogiciel = serializers.CharField(max_length=30, required=False, allow_null=True)
+    versionLogiciel = serializers.CharField(
+        max_length=30, required=False, allow_null=True
+    )
     codeOperateur = serializers.IntegerField(required=False, allow_null=True)
 
 
 class RapportEntreeSerializer(serializers.Serializer):
-    idRapport = serializers.CharField(max_length=50)
+    idRapport = serializers.RegexField(
+        r"^RPT-[A-Za-z0-9_]+-\d{14}$"
+    )
     createdAt = serializers.DateTimeField(required=False, allow_null=True)
 
     produit = ProduitSerializer()

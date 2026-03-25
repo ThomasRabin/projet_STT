@@ -1,4 +1,6 @@
 from django.http import HttpResponse
+from django.utils import timezone
+
 from .models import OF, LogTest, Produit, ReferenceProduit, PassageTest
 
 def index(request):
@@ -46,22 +48,24 @@ def logs_list(request):
     return HttpResponse("".join(lignes))
 
 def tests(request):
-    """
-    Affiche tous les tests en fonction de leur numéro de série.
-    """
-
     tests = PassageTest.objects.all().order_by("-dateFinTest")
 
     lignes = []
 
     for test in tests:
+        if test.dateFinTest:
+            date_locale = timezone.localtime(test.dateFinTest)
+            date_formattee = date_locale.strftime("%d/%m/%Y %H:%M:%S")
+        else:
+            date_formattee = "N/A"
+
         lignes.append(
             f"""
             <div style="margin-bottom:15px;">
                 <b>Test ID :</b> {test.idRapport}<br>
                 <b>SN :</b> {test.idProduit.SN}<br>
                 <b>Résultat :</b> {test.resultatTest}<br>
-                <b>Date fin :</b> {test.dateFinTest}<br>
+                <b>Date fin :</b> {date_formattee}<br>
                 <b>Flag FPY :</b> {test.FPY_flag}<br>
             </div>
             <hr>
