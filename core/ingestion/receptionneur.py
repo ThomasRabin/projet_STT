@@ -12,9 +12,17 @@ Flux d'exécution global :
 3) Validation métier via AuditeurRapport
 4) Persistance via GestionnairePersistance
 5) Retour d'un acquittement JSON standardisé avec code HTTP adapté
+
+Formats supportés :
+- carte unitaire
+- panel avec SN
+- panel sans SN mais avec cartes
+- panel avec cartes identifiées individuellement
 """
 
 from __future__ import annotations
+
+import traceback
 
 from django.utils import timezone
 from rest_framework import status
@@ -30,7 +38,7 @@ from core.domain.exceptions import (
 )
 from core.ingestion.serializers import RapportEntreeSerializer
 from core.services.gestionnairePersistance import GestionnairePersistance
-import traceback
+
 
 def construire_acquittement(
     *,
@@ -88,9 +96,6 @@ def recevoir_rapport(request) -> Response:
         - 503 Service Unavailable : erreur technique temporaire
         - 500 Internal Server Error : erreur imprévue
     """
-    # ==========================================================
-    # 1) Vérification explicite du Content-Type
-    # ==========================================================
     content_type = request.content_type or ""
     if not content_type.startswith("application/json"):
         return Response(
@@ -102,9 +107,6 @@ def recevoir_rapport(request) -> Response:
             status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         )
 
-    # ==========================================================
-    # 2) Validation structurelle / types via DRF serializer
-    # ==========================================================
     serializer = RapportEntreeSerializer(data=request.data)
 
     if not serializer.is_valid():
@@ -123,16 +125,12 @@ def recevoir_rapport(request) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # À partir d'ici, les types et champs sont propres
     donnees_validees = serializer.validated_data
     id_rapport = donnees_validees.get("idRapport")
 
     auditeur = AuditeurRapport()
     persistance = GestionnairePersistance()
 
-    # ==========================================================
-    # 3) Validation métier + persistance
-    # ==========================================================
     try:
         rapport_valide = auditeur.valider(donnees_validees)
         persistance.persister(rapport_valide)

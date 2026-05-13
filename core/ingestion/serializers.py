@@ -1,63 +1,69 @@
+"""
+@file serializers.py
+@brief Serializers DRF pour la validation structurelle des rapports JSON.
+
+@details
+Ce module décrit la structure attendue des rapports entrants :
+- produit principal
+- panel optionnel
+- cartes du panel optionnelles individuellement en SN
+- informations OF / opération / machine / test
+- défaut optionnel
+- logs de test
+
+La validation métier approfondie reste dans AuditeurRapport.
+"""
+
 from rest_framework import serializers
 
 
 STATUT_PRODUIT_VALUES = [
     "OK",
-    "A analyser",
-    "A réparer",
-    "A retester",
-    "Rebut",
+    "A_ANALYSER",
+    "A_REPARER",
+    "A_RETESTER",
+    "REBUT",
 ]
 
 
-class ProduitCarteSerializer(serializers.Serializer):
+class CartePanelSerializer(serializers.Serializer):
+    position = serializers.IntegerField(min_value=1)
+    snCarte = serializers.CharField(max_length=30, required=False, allow_null=True)
     statutCarte = serializers.ChoiceField(choices=STATUT_PRODUIT_VALUES)
 
 
-class ProduitPanelSerializer(serializers.Serializer):
+class PanelSerializer(serializers.Serializer):
     nombreCartes = serializers.IntegerField(min_value=1)
-
-
-class ProduitSerializer(serializers.Serializer):
-    type = serializers.ChoiceField(choices=["CARTE", "PANEL"])
-    sn = serializers.CharField(max_length=30)
-    pn = serializers.CharField(max_length=30)
-    statutProduit = serializers.ChoiceField(choices=STATUT_PRODUIT_VALUES)
-    carte = ProduitCarteSerializer(required=False, allow_null=True)
-    panel = ProduitPanelSerializer(required=False, allow_null=True)
+    cartes = CartePanelSerializer(many=True)
 
     def validate(self, data):
-        type_produit = data["type"]
-        carte = data.get("carte")
-        panel = data.get("panel")
+        nombre_cartes = data["nombreCartes"]
+        cartes = data["cartes"]
 
-        if type_produit == "CARTE":
-            if carte is None:
-                raise serializers.ValidationError(
-                    {"carte": "obligatoire quand produit.type = CARTE"}
-                )
-            if panel is not None:
-                raise serializers.ValidationError(
-                    {"panel": "doit être absent ou null quand produit.type = CARTE"}
-                )
+        if len(cartes) != nombre_cartes:
+            raise serializers.ValidationError(
+                {"cartes": "Le nombre d'éléments de cartes doit être égal à nombreCartes"}
+            )
 
-        if type_produit == "PANEL":
-            if panel is None:
-                raise serializers.ValidationError(
-                    {"panel": "obligatoire quand produit.type = PANEL"}
-                )
-            if carte is not None:
-                raise serializers.ValidationError(
-                    {"carte": "doit être absent ou null quand produit.type = PANEL"}
-                )
+        positions = [c["position"] for c in cartes]
+        if len(set(positions)) != len(positions):
+            raise serializers.ValidationError(
+                {"cartes": "Les positions des cartes doivent être uniques"}
+            )
 
         return data
 
 
+class ProduitSerializer(serializers.Serializer):
+    type = serializers.ChoiceField(choices=["CARTE", "PANEL"])
+    sn = serializers.CharField(max_length=30, required=False, allow_null=True)
+    pn = serializers.CharField(max_length=30, required=False, allow_null=True)
+    statutProduit = serializers.ChoiceField(choices=STATUT_PRODUIT_VALUES)
+
+
 class OFSerializer(serializers.Serializer):
     numeroOF = serializers.RegexField(r"^\d{7}$")
-    client = serializers.CharField(max_length=30)
-    quantite = serializers.IntegerField(min_value=0)
+    client = serializers.CharField(max_length=30, required=False, allow_null=True)
 
 
 class OperationSerializer(serializers.Serializer):
@@ -76,7 +82,7 @@ class MachineSerializer(serializers.Serializer):
     typeMachine = serializers.ChoiceField(
         choices=["CMS", "VAGUE", "AOI", "ICT", "FCT", "PROGRAMMATION", "VRT", "AUTRE"]
     )
-    interface = serializers.CharField(max_length=10)
+    interface = serializers.CharField(max_length=10, required=False, allow_null=True)
 
 
 class LogSerializer(serializers.Serializer):
@@ -85,18 +91,14 @@ class LogSerializer(serializers.Serializer):
         choices=["TOP", "BOTTOM"], required=False, allow_null=True
     )
     position = serializers.IntegerField(min_value=1)
-
     numeroEtape = serializers.IntegerField(required=False, allow_null=True)
     nomEtape = serializers.CharField(max_length=50)
     messageErreur = serializers.CharField(required=False, allow_null=True)
-
     limMoins = serializers.FloatField(required=False, allow_null=True)
     limPlus = serializers.FloatField(required=False, allow_null=True)
     valeurMesuree = serializers.FloatField(required=False, allow_null=True)
     unite = serializers.CharField(max_length=20, required=False, allow_null=True)
-
     resultatEtape = serializers.BooleanField()
-
     composant = serializers.CharField(max_length=10, required=False, allow_null=True)
     refComposant = serializers.CharField(max_length=30, required=False, allow_null=True)
 
@@ -123,15 +125,15 @@ class TestSerializer(serializers.Serializer):
 
 
 class RapportEntreeSerializer(serializers.Serializer):
-    idRapport = serializers.RegexField(
-        r"^RPT-[A-Za-z0-9_]+-\d{14}$"
-    )
+    idRapport = serializers.RegexField(r"^RPT-[A-Za-z0-9_]+-\d{14}$")
     createdAt = serializers.DateTimeField(required=False, allow_null=True)
 
     produit = ProduitSerializer()
+    panel = PanelSerializer(required=False, allow_null=True)
+
     of = OFSerializer()
     operation = OperationSerializer()
     machine = MachineSerializer()
     test = TestSerializer()
-    logs = LogSerializer(many=True, allow_empty=False)
+    logs = LogSerializer(many=True, allow_empty=True)
     defaut = DefautSerializer(required=False, allow_null=True)

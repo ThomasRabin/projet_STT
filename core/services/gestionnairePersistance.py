@@ -1,26 +1,20 @@
 """
 @file gestionnairePersistance.py
-@brief Service de persistance : écrit un rapport validé en base via Django ORM.
+@brief Service de persistance ORM des rapports validés.
 
 @details
-Ce module contient la classe @ref GestionnairePersistance qui transforme un
-@ref RapportValide (objet déjà validé par la couche Domaine) en écritures SQL
-réelles via l'ORM Django.
+Ce module transforme un RapportValide en écritures base de données.
 
-Responsabilités :
-- Créer ou récupérer les entités nécessaires (référence PN, OF, produit, machine, interfaces).
-- Mettre à jour certaines valeurs si l'entité existe déjà (ex : OF.client, OF.quantite).
-- Gérer l'historisation Produit ↔ OF via la table @ref AffectationProduitOF.
-- Créer ou mettre à jour la spécialisation Carte ou Panel selon le type produit.
-- Insérer l'opération, le test, les logs et éventuellement le défaut.
+Fonctionnalités :
+- création / mise à jour de la référence produit
+- création / mise à jour OF
+- création du produit principal (carte ou panel)
+- création éventuelle des cartes d'un panel
+- création de la composition panel/cartes
+- création machine / interface
+- création opération / test / logs / défaut
 
-Garanties :
-- Toute l'opération est transactionnelle (@ref transaction.atomic) :
-  soit tout passe, soit tout est annulé (rollback).
-
-Limites / choix assumés :
-- Certains champs "non applicables en v1" sont remplis avec des valeurs par défaut
-  (anneeMachine, dateDerniereMaintenanceMachine, etc.).
+Toute la persistance est réalisée dans une transaction atomique.
 """
 
 from __future__ import annotations
@@ -39,6 +33,7 @@ from core.models import (
     AffectationProduitOF,
     Carte,
     Panel,
+    CompositionPanel,
     Machine,
     InterfaceMachine,
     Operation,
@@ -51,75 +46,56 @@ from core.models import (
 class GestionnairePersistance:
     """
     @brief Service applicatif chargé d'écrire un rapport validé en base.
-
-    @details
-    Cette classe ne valide pas les données métier (c'est le rôle de l'Auditeur).
-    Elle prend un @ref RapportValide et applique les opérations ORM nécessaires.
     """
 
     @transaction.atomic
     def persister(self, rapport: RapportValide) -> None:
         """
-        @brief Persiste un rapport validé en base de données.
+        @brief Persiste un rapport validé en base.
 
-        @details
-        Ordre logique des écritures :
-        1) ReferenceProduit (PN)
-        2) OF
-        3) Produit spécialisé : Carte ou Panel
-        4) Affectation Produit ↔ OF (historisation)
-        5) Machine
-        6) Interfaces + association ManyToMany
-        7) Operation
-        8) Test
-        9) Logs
-        10) Defaut (optionnel)
-
-        @param rapport Objet @ref RapportValide produit par la validation métier.
+        @param rapport Rapport métier validé.
         @return None
 
         @raises ErreurConflitRapport
-            Si un conflit d'unicité ou un doublon est détecté.
         @raises ErreurTechniqueTemporaire
-            Si la base est indisponible ou en erreur temporaire.
         """
         try:
             # ==========================================================
-            # 1) Référence produit : créer ou récupérer par PN unique
+            # 0) Détection doublon rapport
             # ==========================================================
-            reference_produit, _ = ReferenceProduit.objects.get_or_create(
-                PN=rapport.pn,
-                defaults={"description": None},
-            )
+            if PassageTest.objects.filter(idRapport=rapport.id_rapport).exists():
+                raise ErreurConflitRapport(
+                    f"Rapport déjà reçu : {rapport.id_rapport}"
+                )
 
             # ==========================================================
-            # 2) OF : créer ou récupérer par numeroOF unique
+            # 1) Référence produit
+            # ==========================================================
+            reference_produit = None
+            if rapport.pn:
+                reference_produit, _ = ReferenceProduit.objects.get_or_create(
+                    PN=rapport.pn,
+                    defaults={"description": None},
+                )
+
+            # ==========================================================
+            # 2) OF
             # ==========================================================
             of_obj, _ = OF.objects.get_or_create(
                 numeroOF=rapport.numero_of,
                 defaults={
                     "idReferenceProduit": reference_produit,
                     "client": rapport.client,
-                    "quantite": rapport.quantite_of,
+                    "quantite": 0,
                 },
             )
 
-            # Mise à jour si l'OF existe déjà
             of_obj.idReferenceProduit = reference_produit
             of_obj.client = rapport.client
-            of_obj.quantite = rapport.quantite_of
-            of_obj.save(
-                update_fields=[
-                    "idReferenceProduit",
-                    "client",
-                    "quantite",
-                ]
-            )
+            of_obj.save(update_fields=["idReferenceProduit", "client"])
 
             # ==========================================================
-            # 3) Produit spécialisé : Carte ou Panel
-            #    IMPORTANT :
-            #    On manipule directement le modèle enfant, pas Produit seul.
+            # 3) Produit principal
             # ==========================================================
             if rapport.type_produit == "CARTE":
                 produit_obj, _ = Carte.objects.get_or_create(
@@ -127,20 +103,12 @@ class GestionnairePersistance:
                     defaults={
                         "idReferenceProduit": reference_produit,
                         "statutProduit": rapport.statut_produit,
-                        "statutCarte": rapport.statut_carte,
                     },
                 )
 
                 produit_obj.idReferenceProduit = reference_produit
                 produit_obj.statutProduit = rapport.statut_produit
-                produit_obj.statutCarte = rapport.statut_carte
-                produit_obj.save(
-                    update_fields=[
-                        "idReferenceProduit",
-                        "statutProduit",
-                        "statutCarte",
-                    ]
-                )
+                produit_obj.save(update_fields=["idReferenceProduit", "statutProduit"])
 
             elif rapport.type_produit == "PANEL":
                 produit_obj, _ = Panel.objects.get_or_create(
@@ -148,20 +116,50 @@ class GestionnairePersistance:
                     defaults={
                         "idReferenceProduit": reference_produit,
                         "statutProduit": rapport.statut_produit,
-                        "nombreCartes": rapport.nombre_cartes_panel,
+                        "nombreCartes": rapport.panel["nombreCartes"] if rapport.panel else 0,
                     },
                 )
 
                 produit_obj.idReferenceProduit = reference_produit
                 produit_obj.statutProduit = rapport.statut_produit
-                produit_obj.nombreCartes = rapport.nombre_cartes_panel
+                produit_obj.nombreCartes = rapport.panel["nombreCartes"] if rapport.panel else 0
                 produit_obj.save(
-                    update_fields=[
-                        "idReferenceProduit",
-                        "statutProduit",
-                        "nombreCartes",
-                    ]
+                    update_fields=["idReferenceProduit", "statutProduit", "nombreCartes"]
                 )
+
+                # ======================================================
+                # 3bis) Composition du panel
+                # ======================================================
+                CompositionPanel.objects.filter(idPanel=produit_obj).delete()
+
+                if rapport.panel:
+                    for carte_data in rapport.panel["cartes"]:
+                        sn_carte = carte_data.get("snCarte")
+                        statut_carte = carte_data["statutCarte"]
+                        position = carte_data["position"]
+
+                        carte_obj = None
+
+                        if sn_carte:
+                            carte_obj, _ = Carte.objects.get_or_create(
+                                SN=sn_carte,
+                                defaults={
+                                    "idReferenceProduit": reference_produit,
+                                    "statutProduit": statut_carte,
+                                },
+                            )
+                            carte_obj.idReferenceProduit = reference_produit
+                            carte_obj.statutProduit = statut_carte
+                            carte_obj.save(
+                                update_fields=["idReferenceProduit", "statutProduit"]
+                            )
+
+                        CompositionPanel.objects.create(
+                            idPanel=produit_obj,
+                            idCarte=carte_obj,
+                            position=position,
+                            statutCarte=statut_carte,
+                        )
 
             else:
                 raise ErreurConflitRapport(
@@ -169,8 +167,7 @@ class GestionnairePersistance:
                 )
 
             # ==========================================================
-            # 4) Affectation Produit ↔ OF (historisation)
-            #    Ne pas recréer une affectation si la dernière est identique
+            # 4) Affectation Produit ↔ OF
             # ==========================================================
             derniere_affectation = (
                 AffectationProduitOF.objects.filter(idProduit=produit_obj)
@@ -188,14 +185,14 @@ class GestionnairePersistance:
                 )
 
             # ==========================================================
-            # 5) Machine : créer ou récupérer par codeMachine unique
+            # 5) Machine
             # ==========================================================
             machine_obj, _ = Machine.objects.get_or_create(
                 codeMachine=rapport.code_machine,
                 defaults={
                     "nomMachine": rapport.code_machine,
                     "typeMachine": rapport.type_machine,
-                    "anneeMachine": 2000,  # TODO v2 : rendre optionnel ou fournir
+                    "anneeMachine": 2000,
                     "dateDerniereMaintenanceMachine": "2025-01-01",
                 },
             )
@@ -205,21 +202,21 @@ class GestionnairePersistance:
             machine_obj.save(update_fields=["nomMachine", "typeMachine"])
 
             # ==========================================================
-            # 6) Interface : créer/récupérer puis lier à la machine
+            # 6) Interface machine
             # ==========================================================
-
-            interface_obj, _ = InterfaceMachine.objects.get_or_create(
-                codeInterface=rapport.code_interface,
-                defaults={
-                    "nomInterface": rapport.code_interface,
-                    "anneeInterface": 2000,  # TODO v2
-                },
-            )
-
-            machine_obj.interfaces.add(interface_obj)
+            interface_obj = None
+            if rapport.code_interface:
+                interface_obj, _ = InterfaceMachine.objects.get_or_create(
+                    codeInterface=rapport.code_interface,
+                    defaults={
+                        "nomInterface": rapport.code_interface,
+                        "anneeInterface": 2000,
+                    },
+                )
+                machine_obj.interfaces.add(interface_obj)
 
             # ==========================================================
-            # 7) Operation : créer une opération
+            # 7) Opération
             # ==========================================================
             operation_obj = Operation.objects.create(
                 idOF=of_obj,
@@ -234,12 +231,17 @@ class GestionnairePersistance:
                 ),
             )
 
-            tests_precedents_existent = PassageTest.objects.filter(idProduit=produit_obj).exists()
+            # ==========================================================
+            # 8) Calcul FPY
+            # ==========================================================
+            tests_precedents_existent = PassageTest.objects.filter(
+                idProduit=produit_obj
+            ).exists()
 
             fpy_calcule = (not tests_precedents_existent) and (rapport.etat_test is True)
 
             # ==========================================================
-            # 8) Test : créer un passage de test
+            # 9) Test
             # ==========================================================
             test_obj = PassageTest.objects.create(
                 idProduit=produit_obj,
@@ -256,14 +258,17 @@ class GestionnairePersistance:
             )
 
             # ==========================================================
-            # 9) Logs : créer une ligne LogTest par entrée
+            # 10) Logs
             # ==========================================================
             for log in rapport.logs:
                 LogTest.objects.create(
                     idTest=test_obj,
                     dateEtape=log.get("dateEtape"),
+                    face=log.get("face"),
+                    position=log.get("position", 1),
                     numeroEtape=log.get("numeroEtape"),
                     nomEtape=log.get("nomEtape", ""),
+                    messageErreur=log.get("messageErreur"),
                     limPlus=log.get("limPlus"),
                     limMoins=log.get("limMoins"),
                     valeurMesuree=log.get("valeurMesuree"),
@@ -271,12 +276,10 @@ class GestionnairePersistance:
                     resultatEtape=log.get("resultatEtape"),
                     composant=log.get("composant"),
                     refComposant=log.get("refComposant"),
-                    face=log.get("face"),
-                    #imageTest=None,  abandonnée pour contraint memoire
                 )
 
             # ==========================================================
-            # 10) Défaut : optionnel, créé seulement si présent
+            # 11) Défaut
             # ==========================================================
             if rapport.defaut:
                 Defaut.objects.create(
@@ -295,7 +298,7 @@ class GestionnairePersistance:
 
         except OperationalError as exc:
             raise ErreurTechniqueTemporaire(
-                "Base de données temporairement indisponible"
+                f"Base de données temporairement indisponible : {str(exc)}"
             ) from exc
 
         except DatabaseError as exc:
