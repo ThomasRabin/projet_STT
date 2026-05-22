@@ -213,11 +213,11 @@ class PassageTest(models.Model):
     idRapport = models.CharField(max_length=50, unique=True, null=True, blank=True)
     face = models.CharField(max_length=6, choices=FACE_CHOICES, blank=True, null=True)
     etatTest = models.BooleanField()
-    resultatTest = models.CharField(max_length=50)
-    codeOperateur = models.IntegerField(blank=True, null=True)
+    resultatTest = models.CharField(max_length=150)
+    codeOperateur = models.CharField(max_length=50, blank=True, null=True)
     FPY_flag = models.BooleanField()
     dateFinTest = models.DateTimeField()
-    versionLogiciel = models.CharField(max_length=30, blank=True, null=True)
+    versionLogiciel = models.CharField(max_length=100, blank=True, null=True)
 
 
 class LogTest(models.Model):
@@ -226,7 +226,7 @@ class LogTest(models.Model):
     face = models.CharField(max_length=6, choices=FACE_CHOICES, blank=True, null=True)
     position = models.IntegerField(validators=[MinValueValidator(1)], default=1)
     numeroEtape = models.IntegerField(blank=True, null=True)
-    nomEtape = models.CharField(max_length=50)
+    nomEtape = models.CharField(max_length=150)
     messageErreur = models.CharField(max_length=255, blank=True, null=True)
     limPlus = models.FloatField(blank=True, null=True)
     limMoins = models.FloatField(blank=True, null=True)
@@ -240,7 +240,7 @@ class LogTest(models.Model):
 class Defaut(models.Model):
     idTest = models.OneToOneField(PassageTest, on_delete=models.CASCADE)
     numeroDefaut = models.IntegerField(blank=True, null=True)
-    nomDefaut = models.CharField(max_length=50)
+    nomDefaut = models.CharField(max_length=150)
     dateDefaut = models.DateTimeField()
     dateRework = models.DateTimeField(blank=True, null=True)
     commentaireDefaut = models.TextField(blank=True, null=True)

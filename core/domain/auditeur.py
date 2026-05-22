@@ -166,7 +166,7 @@ class RapportValide:
     resultat_test: str
     date_fin_test_iso: str
     version_logiciel: Optional[str]
-    code_operateur: Optional[int]
+    code_operateur: Optional[str]
 
     logs: list[dict]
     defaut: Optional[dict]

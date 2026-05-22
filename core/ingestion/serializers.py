@@ -92,7 +92,7 @@ class LogSerializer(serializers.Serializer):
     )
     position = serializers.IntegerField(min_value=1)
     numeroEtape = serializers.IntegerField(required=False, allow_null=True)
-    nomEtape = serializers.CharField(max_length=50)
+    nomEtape = serializers.CharField(max_length=150)
     messageErreur = serializers.CharField(required=False, allow_null=True)
     limMoins = serializers.FloatField(required=False, allow_null=True)
     limPlus = serializers.FloatField(required=False, allow_null=True)
@@ -105,7 +105,7 @@ class LogSerializer(serializers.Serializer):
 
 class DefautSerializer(serializers.Serializer):
     numeroDefaut = serializers.IntegerField(required=False, allow_null=True)
-    nomDefaut = serializers.CharField(max_length=50)
+    nomDefaut = serializers.CharField(max_length=150)
     dateDefaut = serializers.DateTimeField()
     dateRework = serializers.DateTimeField(required=False, allow_null=True)
     commentaireDefaut = serializers.CharField(required=False, allow_null=True)
@@ -116,12 +116,12 @@ class TestSerializer(serializers.Serializer):
         choices=["TOP", "BOTTOM"], required=False, allow_null=True
     )
     etatTest = serializers.BooleanField()
-    resultatTest = serializers.CharField(max_length=50)
+    resultatTest = serializers.CharField(max_length=150)
     dateFinTest = serializers.DateTimeField()
     versionLogiciel = serializers.CharField(
-        max_length=30, required=False, allow_null=True
+        max_length=100, required=False, allow_null=True
     )
-    codeOperateur = serializers.IntegerField(required=False, allow_null=True)
+    codeOperateur = serializers.CharField(max_length=50, required=False, allow_null=True)
 
 
 class RapportEntreeSerializer(serializers.Serializer):
