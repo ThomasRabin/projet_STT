@@ -1,0 +1,16 @@
+<map id="Graphe hiérarchique des classes" name="Graphe hiérarchique des classes">
+<area shape="rect" id="node1" title=" " alt="" coords="5,259,120,285"/>
+<area shape="rect" id="node2" href="$classcore_1_1models_1_1AffectationProduitOF.html" title=" " alt="" coords="168,5,409,32"/>
+<area shape="rect" id="node3" href="$classcore_1_1models_1_1CompositionPanel.html" title=" " alt="" coords="177,56,400,83"/>
+<area shape="rect" id="node4" href="$classcore_1_1models_1_1Defaut.html" title=" " alt="" coords="213,107,364,133"/>
+<area shape="rect" id="node5" href="$classcore_1_1models_1_1InterfaceMachine.html" title=" " alt="" coords="179,157,398,184"/>
+<area shape="rect" id="node6" href="$classcore_1_1models_1_1LogTest.html" title=" " alt="" coords="211,208,366,235"/>
+<area shape="rect" id="node7" href="$classcore_1_1models_1_1Machine.html" title=" " alt="" coords="208,259,369,285"/>
+<area shape="rect" id="node8" href="$classcore_1_1models_1_1OF.html" title=" " alt="" coords="227,309,351,336"/>
+<area shape="rect" id="node9" href="$classcore_1_1models_1_1Operation.html" title=" " alt="" coords="203,360,374,387"/>
+<area shape="rect" id="node10" href="$classcore_1_1models_1_1PassageTest.html" title=" " alt="" coords="196,411,381,437"/>
+<area shape="rect" id="node11" href="$classcore_1_1models_1_1Produit.html" title=" " alt="" coords="213,461,365,488"/>
+<area shape="rect" id="node14" href="$classcore_1_1models_1_1ReferenceProduit.html" title="Modèles ##########################." alt="" coords="179,512,398,539"/>
+<area shape="rect" id="node12" href="$classcore_1_1models_1_1Carte.html" title=" " alt="" coords="457,436,599,463"/>
+<area shape="rect" id="node13" href="$classcore_1_1models_1_1Panel.html" title=" " alt="" coords="457,487,599,513"/>
+</map>

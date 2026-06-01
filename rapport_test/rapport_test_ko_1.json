@@ -1,0 +1,42 @@
+{
+  "idRapport": "RPT-2026-03-01-000008",
+  "createdAt": "2026-03-01T12:00:00Z",
+
+  "produit": {
+    "type": "CARTE",
+    "sn": "SN-INVALID-001",
+    "pn": "PN-TEST-001",
+    "statutProduit": "A_ANALYSER"
+  },
+
+  "of": {
+    "numeroOF": "12345",
+    "client": "CLIENT_BAD",
+    "quantite": -10
+  },
+
+  "operation": {
+    "typeOperation": "INSPECTION",
+    "nomOperation": "AOI"
+  },
+
+  "machine": {
+    "codeMachine": "AOI-99",
+    "typeMachine": "LASER"
+  },
+
+  "test": {
+    "face": "LEFT",
+    "etatTest": true,
+    "resultatTest": "PASS",
+    "fpyFlag": true,
+    "dateFinTest": "2026-03-01T12:00:00Z"
+  },
+
+  "logs": [
+    {
+      "nomEtape": "Missing numeroEtape",
+      "resultatEtape": true
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>projet_STT: Référence de l&#39;espace de nommage core.ingestion.receptionneur</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">projet_STT
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Généré par Doxygen 1.9.1 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+var searchBox = new SearchBox("searchBox", "search",false,'Recherche','.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(function() {
+  initMenu('',true,false,'search.php','Recherche');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="namespacecore.html">core</a></li><li class="navelem"><a class="el" href="namespacecore_1_1ingestion.html">ingestion</a></li><li class="navelem"><a class="el" href="namespacecore_1_1ingestion_1_1receptionneur.html">receptionneur</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Fonctions</a>  </div>
+  <div class="headertitle">
+<div class="title">Référence de l'espace de nommage core.ingestion.receptionneur</div>  </div>
+</div><!--header-->
+<div class="contents">
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Fonctions</h2></td></tr>
+<tr class="memitem:ac59abdba067cdec195c8a612bd2cf35e"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecore_1_1ingestion_1_1receptionneur.html#ac59abdba067cdec195c8a612bd2cf35e">construire_acquittement</a> (*str statut_metier, str message, str|None id_rapport=None, int|None tentative=None, str|None code_erreur=None, dict|list|None details=None)</td></tr>
+<tr class="separator:ac59abdba067cdec195c8a612bd2cf35e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a614ef97499e8fadfe1c7147cd02f2d0b"><td class="memItemLeft" align="right" valign="top">Response&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecore_1_1ingestion_1_1receptionneur.html#a614ef97499e8fadfe1c7147cd02f2d0b">recevoir_rapport</a> (request)</td></tr>
+<tr class="separator:a614ef97499e8fadfe1c7147cd02f2d0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Description détaillée</h2>
+<div class="textblock"><pre class="fragment">@file receptionneur.py
+@brief Point d'entrée HTTP DRF pour la réception des rapports JSON.
+
+@details
+Ce module expose une vue Django REST Framework permettant de recevoir un
+rapport de test au format JSON via HTTP POST.
+
+Flux d'exécution global :
+1) Vérification du Content-Type
+2) Validation structurelle / typage via serializer DRF
+3) Validation métier via AuditeurRapport
+4) Persistance via GestionnairePersistance
+5) Retour d'un acquittement JSON standardisé avec code HTTP adapté
+
+Formats supportés :
+- carte unitaire
+- panel avec SN
+- panel sans SN mais avec cartes
+- panel avec cartes identifiées individuellement
+</pre> </div><h2 class="groupheader">Documentation des fonctions</h2>
+<a id="ac59abdba067cdec195c8a612bd2cf35e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac59abdba067cdec195c8a612bd2cf35e">&#9670;&nbsp;</a></span>construire_acquittement()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"> dict core.ingestion.receptionneur.construire_acquittement </td>
+          <td>(</td>
+          <td class="paramtype">*str&#160;</td>
+          <td class="paramname"><em>statut_metier</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">str&#160;</td>
+          <td class="paramname"><em>message</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">str | None &#160;</td>
+          <td class="paramname"><em>id_rapport</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int | None &#160;</td>
+          <td class="paramname"><em>tentative</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">str | None &#160;</td>
+          <td class="paramname"><em>code_erreur</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">dict | list | None &#160;</td>
+          <td class="paramname"><em>details</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">@brief Construit le corps JSON standard de réponse API.
+
+@param statut_metier Statut métier parmi OK / RETRY / KO.
+@param message Message lisible et exploitable.
+@param id_rapport Identifiant rapport si disponible.
+@param tentative Numéro de tentative si applicable.
+@param code_erreur Code applicatif stable.
+@param details Détails complémentaires, typiquement serializer.errors.
+@return dict sérialisable en JSON.
+</pre> <div class="dynheader">
+Voici le graphe des appelants de cette fonction :</div>
+<div class="dyncontent">
+<div class="center"><img src="namespacecore_1_1ingestion_1_1receptionneur_ac59abdba067cdec195c8a612bd2cf35e_icgraph.png" border="0" usemap="#anamespacecore_1_1ingestion_1_1receptionneur_ac59abdba067cdec195c8a612bd2cf35e_icgraph" alt=""/></div>
+<map name="anamespacecore_1_1ingestion_1_1receptionneur_ac59abdba067cdec195c8a612bd2cf35e_icgraph" id="anamespacecore_1_1ingestion_1_1receptionneur_ac59abdba067cdec195c8a612bd2cf35e_icgraph">
+<area shape="rect" title=" " alt="" coords="317,5,593,47"/>
+<area shape="rect" href="namespacecore_1_1ingestion_1_1receptionneur.html#a614ef97499e8fadfe1c7147cd02f2d0b" title=" " alt="" coords="5,5,269,47"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a614ef97499e8fadfe1c7147cd02f2d0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a614ef97499e8fadfe1c7147cd02f2d0b">&#9670;&nbsp;</a></span>recevoir_rapport()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"> Response core.ingestion.receptionneur.recevoir_rapport </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>request</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">@brief Reçoit, valide et persiste un rapport de test.
+
+@return Response
+    - 201 Created : rapport accepté et persisté
+    - 400 Bad Request : JSON invalide / structure invalide
+    - 415 Unsupported Media Type : Content-Type non supporté
+    - 422 Unprocessable Entity : règle métier non respectée
+    - 409 Conflict : doublon / conflit de persistance
+    - 503 Service Unavailable : erreur technique temporaire
+    - 500 Internal Server Error : erreur imprévue
+</pre> <div class="dynheader">
+Voici le graphe d'appel pour cette fonction :</div>
+<div class="dyncontent">
+<div class="center"><img src="namespacecore_1_1ingestion_1_1receptionneur_a614ef97499e8fadfe1c7147cd02f2d0b_cgraph.png" border="0" usemap="#anamespacecore_1_1ingestion_1_1receptionneur_a614ef97499e8fadfe1c7147cd02f2d0b_cgraph" alt=""/></div>
+<map name="anamespacecore_1_1ingestion_1_1receptionneur_a614ef97499e8fadfe1c7147cd02f2d0b_cgraph" id="anamespacecore_1_1ingestion_1_1receptionneur_a614ef97499e8fadfe1c7147cd02f2d0b_cgraph">
+<area shape="rect" title=" " alt="" coords="5,5,269,47"/>
+<area shape="rect" href="namespacecore_1_1ingestion_1_1receptionneur.html#ac59abdba067cdec195c8a612bd2cf35e" title=" " alt="" coords="317,5,593,47"/>
+</map>
+</div>
+
+</div>
+</div>
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Généré par&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1
+</small></address>
+</body>
+</html>

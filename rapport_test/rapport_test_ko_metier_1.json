@@ -1,0 +1,55 @@
+{
+  "idRapport": "RPT-FAUX-0001",
+  "createdAt": "2026-02-24T10:00:00Z",
+
+  "produit": {
+    "type": "CARTE",
+    "sn": "SN-TEST-0001",
+    "pn": "PN-TEST-0001",
+    "statutProduit": "OK",
+    "carte": { "statutCarte": "OK" },
+    "panel": null
+  },
+
+  "of": {
+    "numeroOF": "1234567",
+    "client": "CLIENT_X",
+    "quantite": -5
+  },
+
+  "operation": {
+    "typeOperation": "MANUELLE",
+    "nomOperation": "AOI",
+    "dateFinOperation": "2026-02-24T09:59:58Z",
+    "numeroOperation": null
+  },
+
+  "machine": {
+    "codeMachine": "AOI-01",
+    "typeMachine": "AOI",
+    "interfaces": [
+      { "codeInterface": "IF-01" }
+    ]
+  },
+
+  "test": {
+    "face": "LEFT",
+    "etatTest": false,
+    "resultatTest": "PASS",
+    "fpyFlag": true,
+    "dateFinTest": "2026-02-24T09:59:58Z",
+    "versionLogiciel": "v9.9.9",
+    "codeOperateur": null
+  },
+
+  "logs": [
+    {
+      "numeroEtape": 10,
+      "nomEtape": "Step",
+      "resultatEtape": true,
+      "dateEtape": "2026-02-24T09:59:10Z"
+    }
+  ],
+
+  "defaut": null
+}

@@ -1,0 +1,13 @@
+<map id="Graphe hiérarchique des classes" name="Graphe hiérarchique des classes">
+<area shape="rect" id="node1" title=" " alt="" coords="5,307,160,334"/>
+<area shape="rect" id="node2" href="$classcore_1_1ingestion_1_1serializers_1_1CartePanelSerializer.html" title=" " alt="" coords="208,5,397,47"/>
+<area shape="rect" id="node3" href="$classcore_1_1ingestion_1_1serializers_1_1DefautSerializer.html" title=" " alt="" coords="208,71,397,112"/>
+<area shape="rect" id="node4" href="$classcore_1_1ingestion_1_1serializers_1_1LogSerializer.html" title=" " alt="" coords="208,136,397,177"/>
+<area shape="rect" id="node5" href="$classcore_1_1ingestion_1_1serializers_1_1MachineSerializer.html" title=" " alt="" coords="208,201,397,243"/>
+<area shape="rect" id="node6" href="$classcore_1_1ingestion_1_1serializers_1_1OFSerializer.html" title=" " alt="" coords="208,267,397,308"/>
+<area shape="rect" id="node7" href="$classcore_1_1ingestion_1_1serializers_1_1OperationSerializer.html" title=" " alt="" coords="208,332,397,373"/>
+<area shape="rect" id="node8" href="$classcore_1_1ingestion_1_1serializers_1_1PanelSerializer.html" title=" " alt="" coords="208,397,397,439"/>
+<area shape="rect" id="node9" href="$classcore_1_1ingestion_1_1serializers_1_1ProduitSerializer.html" title=" " alt="" coords="208,463,397,504"/>
+<area shape="rect" id="node10" href="$classcore_1_1ingestion_1_1serializers_1_1RapportEntreeSerializer.html" title=" " alt="" coords="208,528,397,569"/>
+<area shape="rect" id="node11" href="$classcore_1_1ingestion_1_1serializers_1_1TestSerializer.html" title=" " alt="" coords="208,593,397,635"/>
+</map>

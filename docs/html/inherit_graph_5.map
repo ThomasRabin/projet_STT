@@ -1,0 +1,16 @@
+<map id="Graphe hiérarchique des classes" name="Graphe hiérarchique des classes">
+<area shape="rect" id="node1" title=" " alt="" coords="5,473,164,499"/>
+<area shape="rect" id="node2" href="$classcore_1_1migrations_1_10001__initial_1_1Migration.html" title=" " alt="" coords="262,5,422,47"/>
+<area shape="rect" id="node3" href="$classcore_1_1migrations_1_10002__alter__machine__versionlogiciel_1_1Migration.html" title=" " alt="" coords="228,71,456,127"/>
+<area shape="rect" id="node4" href="$classcore_1_1migrations_1_10003__alter__machine__codemachine_1_1Migration.html" title=" " alt="" coords="232,151,452,207"/>
+<area shape="rect" id="node5" href="$classcore_1_1migrations_1_10004__remove__interfacemachine__idmachine__machine__interfaces__and__more_1_1Migration.html" title=" " alt="" coords="226,232,458,303"/>
+<area shape="rect" id="node6" href="$classcore_1_1migrations_1_10005__alter__machine__interfaces_1_1Migration.html" title=" " alt="" coords="212,327,472,368"/>
+<area shape="rect" id="node7" href="$classcore_1_1migrations_1_10006__alter__machine__interfaces_1_1Migration.html" title=" " alt="" coords="212,392,472,433"/>
+<area shape="rect" id="node8" href="$classcore_1_1migrations_1_10007__alter__logtest__resultatetape__alter__logtest__unite_1_1Migration.html" title=" " alt="" coords="233,458,451,514"/>
+<area shape="rect" id="node9" href="$classcore_1_1migrations_1_10008__remove__machine__versionlogiciel__test__face__and__more_1_1Migration.html" title=" " alt="" coords="220,538,464,594"/>
+<area shape="rect" id="node10" href="$classcore_1_1migrations_1_10009__test__idrapport_1_1Migration.html" title=" " alt="" coords="249,619,435,660"/>
+<area shape="rect" id="node11" href="$classcore_1_1migrations_1_10010__rename__test__testproduit_1_1Migration.html" title=" " alt="" coords="215,684,469,725"/>
+<area shape="rect" id="node12" href="$classcore_1_1migrations_1_10011__rename__testproduit__passagetest_1_1Migration.html" title=" " alt="" coords="219,750,465,806"/>
+<area shape="rect" id="node13" href="$classcore_1_1migrations_1_10012__remove__logtest__imagetest__logtest__messageerreur__and__more_1_1Migration.html" title=" " alt="" coords="237,831,447,901"/>
+<area shape="rect" id="node14" href="$classcore_1_1migrations_1_10013__passagetest__idinterfaceutilisee__and__more_1_1Migration.html" title=" " alt="" coords="225,926,459,982"/>
+</map>

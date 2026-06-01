@@ -1,0 +1,82 @@
+{
+  "idRapport": "RPT-ICT_01-20260325090200",
+  "createdAt": "2025-10-14T15:08:10.000+02:00",
+
+  "produit": {
+    "type": "PANEL",
+    "sn": "PNL-00001",
+    "pn": "PN-TEST-003",
+    "statutProduit": "OK",
+    "carte": null,
+    "panel": { "nombreCartes": 3 }
+  },
+
+  "of": {
+    "numeroOF": "7654321",
+    "client": "CLIENT_B",
+    "quantite": 50
+  },
+
+  "operation": {
+    "typeOperation": "TEST",
+    "nomOperation": "ICT",
+    "dateFinOperation": "2025-10-14T15:08:10.000+02:00"
+  },
+
+  "machine": {
+    "codeMachine": "ICT-01",
+    "typeMachine": "ICT",
+    "interface": "IF-03"
+  },
+
+  "test": {
+    "etatTest": true,
+    "resultatTest": "PASS",
+    "dateFinTest": "2025-10-14T15:08:10.000+02:00"
+  },
+
+  "logs": [
+    {
+      "dateEtape": "2025-10-14T15:08:00.000+02:00",
+      "face": "TOP",
+      "position": 1,
+      "numeroEtape": 1,
+      "nomEtape": "Test 1",
+      "messageErreur": null,
+      "limMoins": null,
+      "limPlus": null,
+      "valeurMesuree": null,
+      "unite": null,
+      "resultatEtape": true
+    },
+    {
+      "dateEtape": "2025-10-14T15:08:01.000+02:00",
+      "face": "TOP",
+      "position": 2,
+      "numeroEtape": 2,
+      "nomEtape": "Test 2",
+      "messageErreur": null,
+      "limMoins": null,
+      "limPlus": null,
+      "valeurMesuree": null,
+      "unite": null,
+
+      "resultatEtape": true
+    },
+    {
+      "dateEtape": "2025-10-14T15:08:02.000+02:00",
+      "face": "TOP",
+      "position": 3,
+      "numeroEtape": 3,
+      "nomEtape": "Test 3",
+      "messageErreur": null,
+      "limMoins": null,
+      "limPlus": null,
+      "valeurMesuree": null,
+      "unite": null,
+      "resultatEtape": true
+    }
+  ],
+
+  "defaut": null
+}

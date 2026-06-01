@@ -1,0 +1,61 @@
+{
+  "idRapport": "RPT-FCT_01-20260325090001",
+  "createdAt": "2025-10-14T15:06:10.000+02:00",
+
+  "produit": {
+    "type": "CARTE",
+    "sn": "SN-000201",
+    "pn": "PN-TEST-001",
+    "statutProduit": "OK",
+    "carte": { "statutCarte": "OK" },
+    "panel": null
+  },
+
+  "of": {
+    "numeroOF": "1234567",
+    "client": "CLIENT_A",
+    "quantite": 100
+  },
+
+  "operation": {
+    "typeOperation": "TEST",
+    "nomOperation": "FCT",
+    "dateFinOperation": "2025-10-14T15:06:10.000+02:00",
+    "numeroOperation": 10
+  },
+
+  "machine": {
+    "codeMachine": "FCT-01",
+    "typeMachine": "FCT",
+    "interface": "IF-01"
+  },
+
+  "test": {
+    "face": "TOP",
+    "etatTest": true,
+    "resultatTest": "PASS",
+    "dateFinTest": "2025-10-14T15:06:10.000+02:00",
+    "versionLogiciel": "v1.0",
+    "codeOperateur": 111
+  },
+
+  "logs": [
+    {
+      "dateEtape": "2025-10-14T15:05:00.000+02:00",
+      "face": "TOP",
+      "position": 1,
+      "numeroEtape": 1,
+      "nomEtape": "Voltage check",
+      "messageErreur": null,
+      "limMoins": 4.9,
+      "limPlus": 5.1,
+      "valeurMesuree": 5.0,
+      "unite": "V",
+      "resultatEtape": true,
+      "composant": null,
+      "refComposant": null
+    }
+  ],
+
+  "defaut": null
+}
